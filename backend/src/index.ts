@@ -13,7 +13,11 @@ import { Pool } from "pg";
 import pgSession from "connect-pg-simple";
 import dotenv from "dotenv";
 
+import { buildContext } from "graphql-passport";
+import { configurePassport } from "./passport/passport.config.js";
+
 dotenv.config();
+configurePassport();
 
 const pgPool = new Pool({
 	connectionString: process.env.DATABASE_URL,
@@ -52,14 +56,21 @@ await server.start();
 
 app.use(
 	"/",
-	cors<cors.CorsRequest>(),
+	cors<cors.CorsRequest>({
+		origin: "http://localhost:3000",
+		credentials: true,
+	}),
 	express.json(),
 	expressMiddleware(server, {
-		context: async ({ req }) => ({
-			token: req.headers.token,
-			prisma,
-			user: req.user,
-		}),
+		context: async ({ req, res }) => {
+			const passportContext = buildContext({ req, res });
+			return {
+				...passportContext,
+				token: req.headers.token,
+				prisma,
+				user: req.user,
+			};
+		},
 	})
 );
 

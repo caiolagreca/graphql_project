@@ -9,7 +9,11 @@ export const userResolver = {
 		/* user: (_: any, { userId }: { userId: string }) => {
 			return db.users.find((item: any) => item._id === userId);
 		}, */
-		user: async (_: any, { userId }: { userId: number }) => {
+		user: async (
+			_: any,
+			{ userId }: { userId: number },
+			{ req, res }: { req: any; res: any }
+		) => {
 			return await prisma.user.findUnique({ where: { id: userId } });
 		},
 		/* authUser: () => {
