@@ -1,17 +1,20 @@
 //@ts-ignore
-import db from "../dummyData/data.js";
+import prisma from "../db.js";
 
 export const userResolver = {
 	Query: {
-		users: () => {
+		users: async () => {
+			return await prisma.user.findMany();
+		},
+		/* user: (_: any, { userId }: { userId: string }) => {
+			return db.users.find((item: any) => item._id === userId);
+		}, */
+		user: async (_: any, { userId }: { userId: number }) => {
+			return await prisma.user.findUnique({ where: { id: userId } });
+		},
+		/* authUser: () => {
 			return db.users;
-		},
-		user: (_: any, args: any) => {
-			return db.users.find((item: any) => item._id === args.userId);
-		},
-		authUser: () => {
-			return db.users;
-		},
+		}, */
 	},
 	Mutation: {},
 };
